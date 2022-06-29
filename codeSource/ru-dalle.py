@@ -1,6 +1,9 @@
+import ruclip
 from rudalle.pipelines import generate_images, show, super_resolution, cherry_pick_by_clip
 from rudalle import get_rudalle_model, get_tokenizer, get_vae, get_realesrgan, get_ruclip
 from rudalle.utils import seed_everything
+import translators
+
 
 # prepare models
 device = 'cuda'
@@ -12,7 +15,16 @@ vae = get_vae().to(device)
 ruclip, ruclip_processor = get_ruclip('ruclip-vit-base-patch32-v5')
 ruclip = ruclip.to(device)
 
-text = 'изображение радуги на фоне ночного города'
+
+original_text = '''
+The tropical sky is so beautiful at the beach, it's idyllic. Relaxation comes easily by the sea with the surf and sunset. What a perfect vacation! Don't forget the umbrella for fair weather, and to watch the Dawn and dusk at the seashore. So many people travel to t
+hese exotic island seascapes in the summer, but it's really Heaven on Earth any time of year.
+'''
+print(original_text)
+t = ts.google(original_text.text,from_language='en',to_language='ru')
+print(t)
+
+text = t
 
 seed_everything(42)
 pil_images = []
@@ -34,9 +46,10 @@ for top_k, top_p, images_num in [
 
 top_images, clip_scores = cherry_pick_by_clip(
     pil_images, text, ruclip, ruclip_processor, device=device, count=6)
-show(top_images, 3)
+#show(top_images, 3)
 
 sr_images = super_resolution(top_images, realesrgan)
-show(sr_images, 3)
-
+sr_image = sr_images[0]
+show(sr_image)
+sr_image.save('0.png')
 #show(pil_images, 6)

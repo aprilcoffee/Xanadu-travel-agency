@@ -3,8 +3,6 @@ import api_key
 flickr_api_key = api_key.flickr_api_key()
 flickr_api_secret = api_key.flickr_api_secret()
 
-
-
 import flickrapi
 import urllib
 

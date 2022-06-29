@@ -2,3 +2,4 @@
 codeSource/api_key.py
 __pycache/*
 *.pyc
+postcard/api_key.py
