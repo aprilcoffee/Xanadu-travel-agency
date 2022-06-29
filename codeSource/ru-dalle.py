@@ -2,7 +2,11 @@ import ruclip
 from rudalle.pipelines import generate_images, show, super_resolution, cherry_pick_by_clip
 from rudalle import get_rudalle_model, get_tokenizer, get_vae, get_realesrgan, get_ruclip
 from rudalle.utils import seed_everything
-import translators
+import translators as ts
+#from psutil import virtual_memory
+torch.cuda.empty_cache()
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # prepare models
@@ -21,7 +25,7 @@ The tropical sky is so beautiful at the beach, it's idyllic. Relaxation comes ea
 hese exotic island seascapes in the summer, but it's really Heaven on Earth any time of year.
 '''
 print(original_text)
-t = ts.google(original_text.text,from_language='en',to_language='ru')
+t = ts.google(original_text,from_language='en',to_language='ru')
 print(t)
 
 text = t
