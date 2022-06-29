@@ -1,3 +1,4 @@
 
 codeSource/api_key.py
 __pycache/*
+*.pyc
