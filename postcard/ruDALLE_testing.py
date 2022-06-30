@@ -1,12 +1,5 @@
 #https://colab.research.google.com/drive/1AoolDYePUpPkRCKIu0cP9zV7lX5QGD3Z?usp=sharing#scrollTo=SPbJ5Q8M_ctf
 
-
-
-
-
-
-
-
 ALLOWED_MEMORY = 4 # choose your GPU memory in GB, min value 3.5GB
 if ALLOWED_MEMORY < 4.5:
     DALLE_BS = 1
@@ -112,53 +105,58 @@ def generate_codebooks(text, tokenizer, dalle, top_k, top_p, images_num, image_p
 
 
 
-import translators as ts
-original_text = '''
-The tropical sky is so beautiful at the beach'''
-print(original_text)
-text = ts.google(original_text,from_language='en',to_language='ru')
-print(text)
 
-seed_everything(6955)
-codebooks = []
-for top_k, top_p, images_num in [
-    (2048, 0.995, 3),
-    #(1536, 0.99, ),
-    #(1024, 0.99, ),
-    #(1024, 0.98, ),
-    #(512, 0.97, ),
-    #(384, 0.96, ),
-    #(256, 0.95, ),
-    #(128, 0.95, ),
-]:
-    codebooks += generate_codebooks(text, tokenizer, dalle, top_k=top_k, images_num=images_num, top_p=top_p, bs=DALLE_BS)
+import csv
+sentences = []
+with open('label.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in (reader):
+        sentences.append(row['sentence'].strip())
 
 
-pil_images = []
-for _codebooks in tqdm(torch.cat(codebooks).cpu()):
-    with torch.no_grad():
-        images = vae.decode(_codebooks.unsqueeze(0))
-        pil_images += torch_tensors_to_pil_list(images)
 
-top_images, clip_scores = cherry_pick_by_clip(pil_images, text, ruclip, ruclip_processor, device='cpu', count=6)
-#show(top_images, 3)
+for i,sentence in enumerate(sentences):
+    import translators as ts
+    original_text = sentence
+    print(original_text)
+    text = ts.google(original_text,from_language='en',to_language='ru')
+    print(text)
 
-for i in range(3):
-    sr_image = top_images[i]
+    seed_everything(6955)
+    codebooks = []
+    for top_k, top_p, images_num in [
+        (2048, 0.995, 3),
+        #(1536, 0.99, ),
+        #(1024, 0.99, ),
+        #(1024, 0.98, ),
+        #(512, 0.97, ),
+        #(384, 0.96, ),
+        #(256, 0.95, ),
+        #(128, 0.95, ),
+    ]:
+        codebooks += generate_codebooks(text, tokenizer, dalle, top_k=top_k, images_num=images_num, top_p=top_p, bs=DALLE_BS)
+
+    pil_images = []
+    for _codebooks in tqdm(torch.cat(codebooks).cpu()):
+        with torch.no_grad():
+            images = vae.decode(_codebooks.unsqueeze(0))
+            pil_images += torch_tensors_to_pil_list(images)
+
+    top_images, clip_scores = cherry_pick_by_clip(pil_images, text, ruclip, ruclip_processor, device='cpu', count=3)
+    #show(top_images, 3)
+
+    sr_image = top_images[0]
+    sr_image.save("\origin\"+str(i)+'.png')
+
+    from rudalle.pipelines import super_resolution
+    from rudalle import get_realesrgan
+    realesrgan = get_realesrgan('x2', device=device, fp16=True)
+
+    import gc
+    torch.cuda.empty_cache()
+    gc.collect()
+    sr_images = super_resolution(top_images, realesrgan,batch_size=1)
+    sr_image = sr_images[0]
     #show(sr_image)
-    sr_image.save(str(i)+'.png')
-    #show(pil_images, 6)
-
-from rudalle.pipelines import super_resolution
-from rudalle import get_realesrgan
-realesrgan = get_realesrgan('x2', device=device, fp16=True)
-
-import gc
-torch.cuda.empty_cache()
-gc.collect()
-sr_images = super_resolution(top_images, realesrgan,batch_size=1)
-for i in range(3):
-    sr_image = sr_images[i]
-    #show(sr_image)
-    sr_image.save('super'+str(i)+'.png')
+    sr_image.save("\super\"+str(i)+'.png')
     #show(pil_images, 6)
