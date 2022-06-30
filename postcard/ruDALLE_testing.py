@@ -146,7 +146,7 @@ for i,sentence in enumerate(sentences):
     #show(top_images, 3)
 
     sr_image = top_images[0]
-    sr_image.save("\origin\"+str(i)+'.png')
+    sr_image.save("/origin/"+str(i)+".png")
 
     from rudalle.pipelines import super_resolution
     from rudalle import get_realesrgan
@@ -158,5 +158,5 @@ for i,sentence in enumerate(sentences):
     sr_images = super_resolution(top_images, realesrgan,batch_size=1)
     sr_image = sr_images[0]
     #show(sr_image)
-    sr_image.save("\super\"+str(i)+'.png')
+    sr_image.save("/super/"+str(i)+".png")
     #show(pil_images, 6)
