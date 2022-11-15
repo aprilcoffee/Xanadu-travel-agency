@@ -3,3 +3,19 @@ codeSource/api_key.py
 __pycache/*
 *.pyc
 postcard/api_key.py
+.DS_Store
+
+# Ignore Mac system files
+.DS_store
+
+# Ignore all python notebook checkpoint files
+.ipynb_checkpoints
+
+# Ignore all python notebook checkpoint files
+Documents/*
+
+# Ignore files related to API keys
+.env
+
+# Ignore SASS config files
+.sass-cache
