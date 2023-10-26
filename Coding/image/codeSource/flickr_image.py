@@ -29,4 +29,6 @@ for i, photo in enumerate(photos):
     if i > 50:
         break
 
-print (urls)
+
+for i in urls:
+    print (i)
